@@ -25,9 +25,9 @@ static char num2sym(char input)
 }
 
 // Search for a specific charakter on the board
-int board_search(char Zeichen, char board[], int number, int trys)
+int board_search(char Zeichen, char board[], int number, int tries)
 {
-	for (int i = 0 + trys; i < number; i++)
+	for (int i = tries; i < number; i++)
 	{
 		if (board[i] == Zeichen)
 		{
@@ -41,11 +41,14 @@ int board_search(char Zeichen, char board[], int number, int trys)
 char connect_search(int i, char board[], int number,
 	Connections edge[], int n, unsigned current_player)
 {
-	for (int k = 0; k < n; k++)
+	for (int k = 0; k < n; k++)//i=J
 	{
 		int q, p;
-		q = edge[k].Knoten1 - 'A';
-		p = edge[k].Knoten2 - 'A';
+		q = edge[k].Knoten1 - 'A';//q=A	
+		p = edge[k].Knoten2 - 'A';//p=J	
+		std::cout << board[0] << std::endl;
+		std::cout << board[q] << std::endl;
+		std::cout << edge[k].Knoten2 << std::endl;
 		if (edge[k].Knoten2 == 'A' + i &&
 			board[q] == 'X')
 		{
@@ -146,13 +149,12 @@ int main(void)
 		//Phase 2
 		if (unplaced_pieces[current_player] == 0)
 		{
-			for (int trys = 0; piece_move == ' '; trys++)
+			for (int tries = 0; piece_move == ' ', tries<24; tries++)
 			{
-				int i = board_search('.', board, 24, trys);
-				std::cout << i << std::endl;
-				if (connect_search(i, board, 24, edge, 64, current_player))
+				int i = board_search('.', board, 24, tries);
+				if (connect_search(i, board, 24, edge, 32, current_player))
 				{
-					piece_move = connect_search(i, board, 24, edge, 64, current_player);
+					piece_move = connect_search(i, board, 24, edge, 32, current_player);
 					piece_put = 'A' + i;
 				}
 			}
