@@ -2,6 +2,14 @@
 #include <stdio.h>
 #include <iostream>
 
+class Mills
+{
+public:
+	char node1;
+	char node2;
+	char node3;
+};
+
 class Connections
 {
 public:
@@ -9,6 +17,70 @@ public:
 	char Knoten2;
 };
 
+int best_put_search(char board[], int number, Mills mill[], int n, int current_player,
+	int board_search(char Zeichen, char board[], int number, int tries),
+	int mill_search(char board[], int number, char piece_put, Mills mill[], int n, int current_player))
+{
+	int is_best=0;
+	int is_best_points = 0;
+	for(int i=0; i<number; i++)
+	{
+		int may_best = board_search('.', board, 24, i);
+		int may_best_points = 0;
+		if(mill_search(board, number, may_best+'A', mill, n, current_player))
+		{
+			may_best_points = may_best_points + 100;
+		}
+		if (mill_search(board, number, may_best + 'A', mill, n, !current_player))
+		{
+			may_best_points = may_best_points + 90;
+		}
+		if (may_best + 'A' == 'E'|| may_best + 'A' == 'N' || may_best + 'A' == 'K' || may_best + 'A' == 'T')
+		{
+			may_best_points = may_best_points + 20;
+		}
+		if(may_best + 'A' == 'B' || may_best + 'A' == 'H' || may_best + 'A' == 'J' || may_best + 'A' == 'L' || 
+		may_best + 'A' == 'M' || may_best + 'A' == 'O' || may_best + 'A' == 'Q' || may_best + 'A' == 'W')
+		{
+			may_best_points = may_best_points + 10;
+		}
+		if(may_best_points>=is_best_points)
+		{
+			is_best = may_best;
+			is_best_points = may_best_points;
+		}
+	}
+	std::cout << is_best << std::endl;
+	return is_best;
+}
+
+int mill_search(char board[], int number, char piece_put, Mills mill[], int n, int current_player)
+{
+	for (int i = 0; i < n; i++)
+	{
+		int n1, n2, n3;
+		n1 = mill[i].node1 - 'A';
+		n2 = mill[i].node2 - 'A';
+		n3 = mill[i].node3 - 'A';
+		if (mill[i].node1 == piece_put && board[n2] == current_player + '0' &&
+			board[n3] == current_player + '0')
+		{
+			return 1;
+		}
+		if (mill[i].node2 == piece_put && board[n1] == current_player + '0' &&
+			board[n3] == current_player + '0')
+		{
+			return 1;
+		}
+		if (mill[i].node3 == piece_put && board[n1] == current_player + '0' &&
+			board[n2] == current_player + '0')
+		{
+			return 1;
+		}
+	}
+	return 0;
+
+}
 /* convert player number to board symbols */
 static char num2sym(char input)
 {
@@ -29,6 +101,7 @@ int board_search(char Zeichen, char board[], int number, int tries)
 {
 	for (int i = tries; i < number; i++)
 	{
+
 		if (board[i] == Zeichen)
 		{
 			return i;
@@ -39,26 +112,21 @@ int board_search(char Zeichen, char board[], int number, int tries)
 
 //Search for connection between 'A' + i and a piece on board
 char connect_search(int i, char board[], int number,
-	Connections edge[], int n, unsigned current_player)
+	Connections edge[], int n, int current_player)
 {
-	for (int k = 0; k < n; k++)//i=J
+	for (int k = 0; k < n; k++)
 	{
 		int q, p;
-		q = edge[k].Knoten1 - 'A';//q=A	
-		p = edge[k].Knoten2 - 'A';//p=J	
-		std::cout << board[0] << std::endl;
-		std::cout << board[q] << std::endl;
-		std::cout << edge[k].Knoten2 << std::endl;
+		q = edge[k].Knoten1 - 'A';
+		p = edge[k].Knoten2 - 'A';
 		if (edge[k].Knoten2 == 'A' + i &&
-			board[q] == 'X')
+			board[q] == current_player + '0')
 		{
-			std::cout << k << std::endl;
 			return edge[k].Knoten1;
 		}
 		if (edge[k].Knoten1 == 'A' + i &&
-			board[p] == 'X')
+			board[p] == current_player + '0')
 		{
-			std::cout << k << std::endl;
 			return edge[k].Knoten2;
 		}
 	}
@@ -88,7 +156,9 @@ int main(void)
 		char piece_move = ' ', piece_put = ' ', piece_kill = ' ';
 		char newline;
 		Connections edge[32];
+		Mills mill[16];
 		int matches;
+		int no_piece;
 		// initialize edges with nodes
 		edge[0].Knoten1 = 'A'; edge[1].Knoten1 = 'A'; edge[2].Knoten1 = 'B'; edge[3].Knoten1 = 'B';
 		edge[0].Knoten2 = 'B'; edge[1].Knoten2 = 'J'; edge[2].Knoten2 = 'C'; edge[3].Knoten2 = 'E';
@@ -114,6 +184,23 @@ int main(void)
 		edge[28].Knoten1 = 'T'; edge[29].Knoten1 = 'T'; edge[30].Knoten1 = 'V'; edge[31].Knoten1 = 'W';
 		edge[28].Knoten2 = 'U'; edge[29].Knoten2 = 'W'; edge[30].Knoten2 = 'W'; edge[31].Knoten2 = 'X';
 
+		// initialize mills with nodes
+		mill[0].node1 = 'A'; mill[1].node1 = 'D'; mill[2].node1 = 'G'; mill[3].node1 = 'J';
+		mill[0].node2 = 'B'; mill[1].node2 = 'E'; mill[2].node2 = 'H'; mill[3].node2 = 'K';
+		mill[0].node3 = 'C'; mill[1].node3 = 'F'; mill[2].node3 = 'I'; mill[3].node3 = 'L';
+
+		mill[4].node1 = 'M'; mill[5].node1 = 'P'; mill[6].node1 = 'S'; mill[7].node1 = 'V';
+		mill[4].node2 = 'N'; mill[5].node2 = 'Q'; mill[6].node2 = 'T'; mill[7].node2 = 'W';
+		mill[4].node3 = 'O'; mill[5].node3 = 'R'; mill[6].node3 = 'U'; mill[7].node3 = 'X';
+
+		mill[8].node1 = 'A'; mill[9].node1 = 'D'; mill[10].node1 = 'G'; mill[11].node1 = 'B';
+		mill[8].node2 = 'J'; mill[9].node2 = 'K'; mill[10].node2 = 'L'; mill[11].node2 = 'E';
+		mill[8].node3 = 'V'; mill[9].node3 = 'S'; mill[10].node3 = 'P'; mill[11].node3 = 'H';
+
+		mill[12].node1 = 'Q'; mill[13].node1 = 'I'; mill[14].node1 = 'F'; mill[15].node1 = 'C';
+		mill[12].node2 = 'T'; mill[13].node2 = 'M'; mill[14].node2 = 'N'; mill[15].node2 = 'O';
+		mill[12].node3 = 'W'; mill[13].node3 = 'R'; mill[14].node3 = 'U'; mill[15].node3 = 'X';
+
 
 		/* First, read the current game state, given as two lines of text. */
 
@@ -138,24 +225,131 @@ int main(void)
 			fprintf(stderr, "error while reading the board state\n");
 			break;
 		}
+		printf("\n");
+		printf("Nine Men's Morris\n");
+		printf("=================\n");
+		printf("\n");
+		if (unplaced_pieces[0])
+		{
+			printf("Player 0: ");
+			for (unsigned i = 0; i < unplaced_pieces[0]; i++)
+				printf("%c", num2sym('0'));
+			printf("\n");
+		}
+		if (unplaced_pieces[1])
+		{
+			printf("Player 1: ");
+			for (unsigned i = 0; i < unplaced_pieces[1]; i++)
+				printf("%c", num2sym('1'));
+			printf("\n\n");
+		}
+		printf("Current board situation on the left,\n");
+		printf("letters for identifying the places on the right:\n");
+		printf("\n");
+		printf("%c----------%c----------%c            A----------B----------C\n",
+			num2sym(board[0]), num2sym(board[1]), num2sym(board[2]));
+		printf("|          |          |            |          |          |\n");
+		printf("|   %c------%c------%c   |            |   D------E------F   |\n",
+			num2sym(board[3]), num2sym(board[4]), num2sym(board[5]));
+		printf("|   |      |      |   |            |   |      |      |   |\n");
+		printf("|   |   %c--%c--%c   |   |            |   |   G--H--I   |   |\n",
+			num2sym(board[6]), num2sym(board[7]), num2sym(board[8]));
+		printf("|   |   |     |   |   |            |   |   |     |   |   |\n");
+		printf("%c---%c---%c     %c---%c---%c            J---K---L     M---N---O\n",
+			num2sym(board[9]), num2sym(board[10]), num2sym(board[11]),
+			num2sym(board[12]), num2sym(board[13]), num2sym(board[14]));
+		printf("|   |   |     |   |   |            |   |   |     |   |   |\n");
+		printf("|   |   %c--%c--%c   |   |            |   |   P--Q--R   |   |\n",
+			num2sym(board[15]), num2sym(board[16]), num2sym(board[17]));
+		printf("|   |      |      |   |            |   |      |      |   |\n");
+		printf("|   %c------%c------%c   |            |   S------T------U   |\n",
+			num2sym(board[18]), num2sym(board[19]), num2sym(board[20]));
+		printf("|          |          |            |          |          |\n");
+		printf("%c----------%c----------%c            V----------W----------X\n",
+			num2sym(board[21]), num2sym(board[22]), num2sym(board[23]));
+		printf("\n");
+		printf("Player %d's move (%c).\n", current_player,
+			num2sym((char)current_player + '0'));
 		//Rules
 		//Phase 1
 		if (unplaced_pieces[current_player])
 		{
-			int i = board_search('.', board, 24, 0);
+			int i = best_put_search(board, 24, mill, 16, current_player, board_search, mill_search);
 			piece_put = 'A' + i;
+			if (mill_search(board, 24, piece_put, mill, 16, current_player))
+			{
+				int i = board_search(!current_player + '0', board, 24, 0);
+				for (; i < 24; i++)
+				{
+					piece_kill = 'A' + i;
+					int p_k = piece_kill - 'A';
+					if (!mill_search(board, 24, piece_kill, mill, 16,
+						!current_player) && board[p_k] == !current_player + '0')
+					{
+						break;
+					}
+					piece_kill = ' ';
+				}
+			}
 		}
 
 		//Phase 2
 		if (unplaced_pieces[current_player] == 0)
 		{
-			for (int tries = 0; piece_move == ' ', tries<24; tries++)
+			//Phase 2.b(Only 3 pieces on the board)
+			int first_piece = board_search(current_player + '0', board, 24, 0);
+			int second_piece = board_search(current_player + '0', board, 24, first_piece + 1);
+			int third_piece = board_search(current_player + '0', board, 24, second_piece + 1);
+			if (board_search(current_player + '0', board, 24, third_piece + 1) == 0)
 			{
-				int i = board_search('.', board, 24, tries);
+				int free_field = best_put_search(board, 24, mill, 16, current_player, board_search, mill_search);
+				piece_put = 'A' + free_field;
+				int piece = board_search(current_player + '0', board, 24, 0);
+				piece_move = 'A' + piece;
+				no_piece = piece_move - 'A';
+				board[no_piece] = '.';
+				if (mill_search(board, 24, piece_put, mill, 16, current_player))
+				{
+					int i = board_search(!current_player + '0', board, 24, 0);
+					for (; i < 24; i++)
+					{
+						piece_kill = 'A' + i;
+						int p_k = piece_kill - 'A';
+						if (!mill_search(board, 24, piece_kill, mill, 16,
+							!current_player) && board[p_k] == !current_player + '0')
+						{
+							break;
+						}
+						piece_kill = ' ';
+					}
+				}
+
+			}
+			//Phase 2.a(more than 3 pieces on the board
+			for (int tries = 0; piece_move == ' ' && tries<24; tries++)
+			{
+				int i = best_put_search(board, 24, mill, 16, current_player, board_search, mill_search);
 				if (connect_search(i, board, 24, edge, 32, current_player))
 				{
 					piece_move = connect_search(i, board, 24, edge, 32, current_player);
 					piece_put = 'A' + i;
+					no_piece = piece_move - 'A';
+					board[no_piece] = '.';
+					if (mill_search(board, 24, piece_put, mill, 16, current_player))
+					{
+						int i = board_search(!current_player + '0', board, 24, 0);
+						for (; i < 24; i++)
+						{
+							piece_kill = 'A' + i;
+							int p_k = piece_kill - 'A';
+							if (!mill_search(board, 24, piece_kill, mill, 16, !current_player) && board[p_k] == !current_player + '0')
+							{
+								break;
+							}
+							piece_kill = ' ';
+						}
+
+					}
 				}
 			}
 		}
