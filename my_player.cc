@@ -17,9 +17,13 @@ public:
 	char Knoten2;
 };
 
-int best_put_search(char board[], int number, Mills mill[], int n, int current_player,
-	int board_search(char Zeichen, char board[], int number, int tries),
-	int mill_search(char board[], int number, char piece_put, Mills mill[], int n, int current_player))
+int best_put_search(char, int, Mills, int, int);
+int mill_search(char, int, char, Mills, int, int);
+static char num2sym(char);
+int board_search(char, char, int, int);
+char connect_search(int, char, int, Connections, int, int);
+
+int best_put_search(char board[], int number, Mills mill[], int n, int current_player)
 {
 	int is_best=0;
 	int is_best_points = 0;
